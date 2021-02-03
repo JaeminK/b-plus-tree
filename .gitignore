@@ -1,4 +1,3 @@
-b-plus-tree.vcxproj
-b-plus-tree.vcxproj.filters
-b-plus-tree.vcxproj.user
-Debug/*
+*.vcxproj
+*.vcxproj.*
+Debug/
