@@ -20,7 +20,7 @@ namespace Tree
         vector<int> get_keylist();
         int get_key(int index);
         int add_key(int key);
-        bool del_key(int key);
+        void del_key(int key);
         Node** get_child();
         void set_child(Node* child, int index);
         void del_child(int index);

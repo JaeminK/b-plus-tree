@@ -1,15 +1,14 @@
 #pragma once
-#include <vector>
 
 #include "node.h"
 
 using namespace Tree;
 
-void insert_arrange(Node* node);
-
 void insert_node(Node* node, int key);
 
 Node* delete_node(Node* node, int key);
+
+void insert_arrange(Node* node);
 
 void delete_arrange(Node* node);
 

@@ -88,14 +88,15 @@ namespace Tree {
       * Delete a key from the list with specific order
       * @return true if successfully delete, else false.
       */
-    bool Node::del_key(int key) {
+    void Node::del_key(int key) {
         for (unsigned int i = 0; i < key_.size(); i++) {
             if (key == key_[i]) {
                 key_.erase(key_.begin() + i);
-                return true;
+                return;
             }
         }
-        return false;
+        cout << "key not in tree" << endl;
+        return;
     }
 
 
