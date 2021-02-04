@@ -744,6 +744,5 @@ void print_tree(Node* node) {
 			}
 		}
 	}
-
 }
 

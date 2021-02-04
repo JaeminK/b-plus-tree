@@ -6,8 +6,7 @@
 using namespace std;
 
 namespace Tree {
-    /**
-      * Create an Node.
+    /** Create an Node.
       */
     Node::Node(unsigned int capacity)
         : capacity_(capacity), key_({}), type_(TREE_ROOT_LEAF), child_(new Node* [capacity + 1])
@@ -16,8 +15,7 @@ namespace Tree {
         }
 
 
-    /**
-      * Destructor: free all memory associated with a given Node object.
+    /** Destructor: free all memory associated with a given Node object.
       * Invoked by the system.
       */
     Node::~Node() {
@@ -25,8 +23,7 @@ namespace Tree {
     }
 
 
-    /**
-      * Get the branching factor... capacity of the key list
+    /** Get the branching factor... capacity of the key list
       * @return the integer branching factor.
       */
     int Node::get_capacity() {
@@ -34,8 +31,7 @@ namespace Tree {
     }
 
 
-    /**
-      * Get full list of keys
+    /** Get full list of keys
       * @return the full list of integer keys as vector
       */
     vector<int> Node::get_keylist() {
@@ -43,8 +39,7 @@ namespace Tree {
     }
 
 
-    /**
-      * Get a key from the list
+    /** Get a key from the list
       * @return key of a specific index from the key list.
       */
     int Node::get_key(int index) {
@@ -57,9 +52,8 @@ namespace Tree {
     }
 
 
-    /**
-      * Add a key to the list with specific order
-      * @return index of the inserted key.
+    /** Add a key to the list with ascending order
+      * @return index of where the inserted key have been placed.
       */
     int Node::add_key(int key) {
         int size = get_keylist().size();
@@ -81,9 +75,8 @@ namespace Tree {
     }
 
 
-    /**
-      * Delete a key from the list with specific order
-      * @return true if successfully delete, else false.
+    /** Delete a key from the list with ascending order
+      * if key was not found, print "key not in tree"
       */
     void Node::del_key(int key) {
         for (unsigned int i = 0; i < key_.size(); i++) {
@@ -92,13 +85,12 @@ namespace Tree {
                 return;
             }
         }
-        cout << "key not in tree" << endl;
+        cout << "key not in tree!" << endl;
         return;
     }
 
 
-    /**
-      * Get a list of Node pointers to its children
+    /** Get a list of Node pointers to its children
       * @return lists of pointers to children.
       */
     Node** Node::get_child() {
@@ -106,14 +98,14 @@ namespace Tree {
     }
 
 
-    /**
-      * Set a child to the list of children at the specific index
+    /** Set a child to the list of children at the specific index
       */
     void Node::set_child(Node* child, int index) {
         this->child_[index] = child;
     }
 
-
+    /** Delete a child from the list of children at the specific index
+      */
     void Node::del_child(int index) {
         for (unsigned int i = index; i < key_.size(); i++) {
             this->child_[index] = this->child_[index + 1];
@@ -121,6 +113,8 @@ namespace Tree {
         this->child_[key_.size()] = NULL;
     }
 
+    /** Copy contents from other node, without copying the actual address
+      */
     void Node::copy_child(Node* node) {
         this->capacity_ = node->get_capacity();
         this->key_ = node->get_keylist();
@@ -128,25 +122,22 @@ namespace Tree {
         this->child_ = node->get_child();
     }
 
-    /**
-      * Get a pointer to the neighbor node
-      * @return pointer to the neighbor node if exist.
+    /** Get a pointer to the neighbor node
+      * @return pointer to the neighbor node.
       */
     Node* Node::get_next() {
         return child_[capacity_];
     }
 
 
-    /**
-      * Set neighbor node as next node
+    /** Set input node as next node
       */
     void Node::set_next(Node* node) {
         this->child_[capacity_] = node;
     }
 
 
-    /**
-      * Get the type of current node
+    /** Get the type of current node
       * @return type of currrent node.
       */
     TreeNodeType Node::get_type() {
@@ -154,15 +145,14 @@ namespace Tree {
     }
 
 
-    /**
-      * Set type of current node as specific type
+    /** Set type of current node as specific type
       */
     void Node::set_type(TreeNodeType type) {
         this->type_ = type;
     }
 
-    /**
-      * Check whether the node is full
+    /** Check whether the node is full
+      * @return true if key size == capacity, else false
       */
     bool Node::isFull() {
         if (key_.size() >= capacity_) {
@@ -173,8 +163,8 @@ namespace Tree {
         }
     }
 
-    /**
-      * Check whether the node is empty
+    /** Check whether the node is empty
+      * @return true if key size == 0, else false
       */
     bool Node::isEmpty() {
         if (key_.empty()) {
