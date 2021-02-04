@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
+#include <queue>
 #include <iomanip>
 
 #include "node.h"
@@ -162,7 +163,6 @@ void insert_arrange(Node* node) {
 		child1->set_next(child2);		// set next
 
 		node->set_type(TREE_ROOT_INTERNAL);
-		node->set_degree(1);
 		return;
 
 
@@ -179,10 +179,8 @@ void insert_arrange(Node* node) {
 		*/
 		Node* child3 = new Node(capacity);
 		child3->set_type(TREE_INTERNAL);
-		child3->set_degree(node->get_degree());
 		Node* child4 = new Node(capacity);
 		child4->set_type(TREE_INTERNAL);
-		child4->set_degree(node->get_degree());
 
 		/*  ┌─-┐					┌─-┐
 		*	│	 │	┌──-─┐		│	 │
@@ -247,7 +245,6 @@ void insert_arrange(Node* node) {
 		*/
 		node->set_child(child3, 0);
 		node->set_child(child4, 1);
-		node->set_degree(node->get_degree() + 1);
 		return;
 	}
 	// CASE 3	..	Child node is FULL..
@@ -274,7 +271,6 @@ void insert_arrange(Node* node) {
 			*/
 			Node* child5 = new Node(capacity);
 			child5->set_type(TREE_LEAF);
-			child5->set_degree(child[overflow]->get_degree());
 			int index = node->add_key(split_key);
 
 			/*		┌──-┐ 
@@ -324,7 +320,6 @@ void insert_arrange(Node* node) {
 			*/
 			Node* child6 = new Node(capacity);
 			child6->set_type(TREE_INTERNAL);
-			child6->set_degree(child[overflow]->get_degree());
 			int index = node->add_key(split_key);
 			child[overflow]->del_key(split_key);
 
@@ -386,6 +381,8 @@ INPUT		: node pointer where underflow happened
 OPERATION	: merge underflow node depending on each case.
 ************************************************************* */
 void delete_arrange(Node* node) {
+	// this may cause root node to be empty...
+	// require additional check whether root is empty...
 	if (node->get_type() == TREE_ROOT_INTERNAL || node->get_type() == TREE_INTERNAL) {
 		int parent_size = node->get_keylist().size();
 		if (parent_size == 0) {
@@ -461,17 +458,19 @@ void delete_arrange(Node* node) {
 				}
 			}
 			else {							// when both left and right adjacent child has less than one key
-				if (underflow == parent_size) {		// when right-most child is empty
+				if (underflow == 0) {		// when leftmost child is not empty
 					/*	   ┌───-┐
 					*	   │ 2  3  │ <<
 					*	   ├─┬─-┤
 					* ┌─-┐┌─-┐┌─-┐
-					* │ 1 ││ 2 ││   │
+					* │   ││ 2 ││ 3 │
 					* └─-┘└─-┘└─-┘
 					*/
-					child[underflow - 1]->set_next(child[underflow]->get_next());
-					node->del_child(underflow);
-					node->del_key(node->get_key(underflow - 1));
+					for (int i = underflow; i < parent_size; i++) {
+						node->get_child()[i]->copy_child(node->get_child()[i + 1]);
+					}
+					node->del_child(parent_size);
+					node->del_key(node->get_key(0));
 				}
 				else {
 					/*	   ┌───-┐
@@ -481,11 +480,9 @@ void delete_arrange(Node* node) {
 					* │ 1 ││   ││ 3 │
 					* └─-┘└─-┘└─-┘
 					*/
-					for (int i = underflow; i < parent_size; i++) {
-						node->set_child(child[i + 1], i);
-					}
-					node->del_child(parent_size);
-					node->del_key(node->get_key(0));
+					child[underflow - 1]->set_next(child[underflow]->get_next());
+					node->del_child(underflow);
+					node->del_key(node->get_key(underflow - 1));
 				}
 			}
 		}
@@ -501,11 +498,10 @@ void delete_arrange(Node* node) {
 				* ├┬─-┤├-─┘├─-┤
 				*/
 				Node* leftchild = child[underflow - 1];
-				vector<int> leftchild_key = leftchild->get_keylist();
 				child[underflow]->add_key(node->get_key(underflow - 1));
 				node->del_key(node->get_key(underflow - 1));
-				node->add_key(leftchild_key.back());
-				leftchild_key.pop_back();
+				node->add_key(leftchild->get_keylist().back());
+				leftchild->del_key(leftchild->get_keylist().back());
 				/*	     ┌───-┐
 				*	     │ 3  7  │ << 
 				*	     ├─┬─-┤	
@@ -514,8 +510,8 @@ void delete_arrange(Node* node) {
 				* ├┬─-┤├-─┘├─-┤
 				*/
 				child[underflow]->set_child(child[underflow]->get_child()[0], 1);
-				child[underflow]->set_child(leftchild->get_child()[leftchild_key.size() + 1], 0);
-				leftchild->set_child(nullptr, leftchild_key.size() + 1);
+				child[underflow]->set_child(leftchild->get_child()[leftchild->get_keylist().size() + 1], 0);
+				leftchild->set_child(nullptr, leftchild->get_keylist().size() + 1);
 				/*	   ┌───-┐
 				*	   │ 3  7  │ <<
 				*	   ├─┬─-┤
@@ -533,11 +529,10 @@ void delete_arrange(Node* node) {
 				* ├─-┤├-─┘├─┬-┤
 				*/
 				Node* rightchild = child[underflow + 1];
-				vector <int> rightchild_key = rightchild->get_keylist();
-				child[underflow]->add_key(node->get_key(underflow + 1));
-				node->del_key(node->get_key(underflow + 1));
-				node->add_key(rightchild_key.front());
-				rightchild_key.erase(rightchild_key.begin());
+				child[underflow]->add_key(node->get_key(underflow));
+				node->del_key(node->get_key(underflow));
+				node->add_key(rightchild->get_keylist().front());
+				rightchild->del_key(rightchild->get_keylist().front());
 				/*	   ┌───-┐
 				*	   │ 3  6  │ <<
 				*	   ├─┬─-┤
@@ -546,10 +541,10 @@ void delete_arrange(Node* node) {
 				* ├─-┤├-─┘├─┬-┤
 				*/
 				child[underflow]->set_child(rightchild->get_child()[0], 1);
-				for (unsigned int i = 0; i < rightchild_key.size(); i++) {
+				for (unsigned int i = 0; i < rightchild->get_keylist().size() + 1; i++) {
 					rightchild->set_child(rightchild->get_child()[i + 1], i);
 				}
-				rightchild->set_child(nullptr, rightchild_key.size() + 1);
+				rightchild->set_child(nullptr, rightchild->get_keylist().size() + 1);
 				/*	   ┌───-┐
 				*	   │ 3  6  │ <<
 				*	   ├─┬─-┤
@@ -559,36 +554,13 @@ void delete_arrange(Node* node) {
 				*/
 			}
 			else {							// when both left and right adjacent child has less than one key
-				// this may cause root node to be empty...
-				// require additional check whether root is empty...
-				if (underflow == parent_size) {		// when right-most child is empty
+				if (underflow == 0) {		// when left-most child is empty
 					/*	   ┌───-┐
-					*	   │ 3  5  │ <<
+					*	   │ 3  6  │ <<
 					*	   ├─┬─-┤
 					* ┌─-┐┌─-┐┌─-┐
-					* │ 2 ││ 4 ││   │
-					* ├─-┤├-─┤├─-┘
-					*/
-					Node* prevchild = child[underflow - 1];
-					int until = prevchild->add_key(node->get_key(underflow - 1));
-					prevchild->set_child(child[underflow]->get_child()[0], prevchild->get_keylist().size());
-					node->del_child(underflow);
-					node->del_key(node->get_key(parent_size - 1));
-					/*	  ┌─-┐
-					*	  │ 3 │ <<
-					*	  ├─-┤
-					* ┌─-┐┌───┐
-					* │ 2 ││ 4  5 │
-					* ├─-┤├─┬─┤
-					*/
-				}
-				else {
-					/*	   ┌───-┐
-					*	   │ 3  5  │ <<
-					*	   ├─┬─-┤
-					* ┌─-┐┌─-┐┌─-┐
-					* │ 2 ││   ││ 6 │
-					* ├─-┤├-─┘├─-┤
+					* │   ││ 5 ││ 7 │
+					* ├─-┘├-─┤├─-┤
 					*/
 					Node* nextchild = child[underflow + 1];
 					int number = node->get_key(underflow);
@@ -597,17 +569,35 @@ void delete_arrange(Node* node) {
 						nextchild->set_child(nextchild->get_child()[i - 1], i);
 					}
 					nextchild->set_child(child[underflow]->get_child()[0], 0);
-					for (int j = underflow; j < parent_size; j++) {
-						node->set_child(node->get_child()[j + 1], j);
-					}
-					node->del_child(parent_size);
+					node->del_child(0);
 					node->del_key(number);
-					/*	  ┌─-┐
-					*	  │ 3 │ <<
-					*	  ├─-┤
-					* ┌─-┐┌───┐
-					* │ 2 ││ 5  6 │
-					* ├─-┤├─┬─┤
+					/*		┌─-┐
+					*		│ 6 │ <<
+					*		├─-┤
+					* ┌───┐┌─-┐
+					* │ 3  5 ││ 7 │
+					* ├─┬─┤├─-┤
+					*/
+				}
+				else {
+					/*	   ┌───-┐
+					*	   │ 3  6  │ <<
+					*	   ├─┬─-┤
+					* ┌─-┐┌─-┐┌─-┐
+					* │ 2 ││   ││ 7 │
+					* ├─-┤├-─┘├─-┘
+					*/
+					Node* prevchild = child[underflow - 1];
+					prevchild->add_key(node->get_key(underflow - 1));
+					prevchild->set_child(child[underflow]->get_child()[0], prevchild->get_keylist().size());
+					node->del_child(underflow);
+					node->del_key(node->get_key(underflow - 1));
+					/*		┌─-┐
+					*		│ 6 │ <<
+					*		├─-┤
+					* ┌───┐┌─-┐
+					* │ 2  3 ││ 7 │
+					* ├─┬─┤├─-┤
 					*/
 				}
 			}
@@ -688,28 +678,72 @@ void print_leaf(Node* node) {
 	}
 }
 
-void print_tree(Node* node, int pointer) {
-	int size = node->get_keylist().size();
+
+int count_leaf_keys(Node* node) {
 	if (node->get_type() == TREE_LEAF || node->get_type() == TREE_ROOT_LEAF) {
-		if (pointer < size) {
-			cout << node->get_key(pointer) << endl;
-			pointer++;
-			print_tree(node, pointer);
-			return;
-		}
+		return node->get_keylist().size();
 	}
 	else {
-		int capacity = node->get_capacity();
-		int degree = node->get_degree();
-		
-		for (int i = 0; i < size; i++) {
-			print_tree(node->get_child()[i], 0);
-			for (int j = 0; j < degree; j++) {
-				cout << "  ";
-			}
-			cout << node->get_key(i) << endl;
+		int sum = 0;
+		for (unsigned int i = 0; i <= node->get_keylist().size(); i++) {
+			sum += count_leaf_keys(node->get_child()[i]);
 		}
-		print_tree(node->get_child()[size], 0);
-		return;
+		return sum;
 	}
 }
+
+int count_leaf_nodes(Node* node) {
+	if (node->get_type() == TREE_LEAF || node->get_type() == TREE_ROOT_LEAF) {
+		return 1;
+	}
+	else {
+		int sum = 0;
+		if (node->get_child()[0]->get_type() == TREE_LEAF || node->get_child()[0]->get_type() == TREE_ROOT_LEAF) {
+			sum = node->get_keylist().size() + 1;
+		}
+		else {
+			for (unsigned int i = 0; i <= node->get_keylist().size(); i++) {
+				sum += count_leaf_keys(node->get_child()[i]);
+			}
+		}
+		return sum;
+	}
+}
+
+void print_tree(Node* node) {
+	queue<Node*> q;
+	q.push(node);
+	while (!q.empty()) {
+		unsigned int size = q.size();
+		for (unsigned int i = 0; i < size; i++) {
+			Node* curr = q.front();
+			q.pop();
+			if (curr->get_type() == TREE_LEAF || curr->get_type() == TREE_ROOT_LEAF) {
+				cout << setw(1) << "[";
+				for (unsigned int j = 0; j < curr->get_keylist().size(); j++) {
+					cout.setf(ios::right);
+					cout << setw(3) << curr->get_key(j);
+				}
+				cout << setw(1) << "]";
+			}
+			else {
+				int key_size = curr->get_keylist().size();
+				for (int k = 0; k < key_size; k++) {
+					int child_leaf_size = count_leaf_keys(curr->get_child()[k]) * 3 + count_leaf_nodes(curr->get_child()[k]) * 2;
+					cout.setf(ios::right);
+					cout << setw(child_leaf_size) << curr->get_key(k);
+					q.push(curr->get_child()[k]);
+				}
+				int rightmost_child_leaf_size = count_leaf_keys(curr->get_child()[key_size]) * 3 + count_leaf_nodes(curr->get_child()[key_size]) * 2;
+				cout << setw(rightmost_child_leaf_size) << " ";
+				q.push(curr->get_child()[key_size]);
+			}
+			
+			if (i == size - 1) {
+				cout << endl << endl;
+			}
+		}
+	}
+
+}
+

@@ -20,5 +20,5 @@ Node* get_leftmost_leaf(Node* node);
 
 void print_leaf(Node* node);
 
-void print_tree(Node* node, int pointer);
+void print_tree(Node* node);
 	

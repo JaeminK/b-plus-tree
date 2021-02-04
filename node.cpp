@@ -10,7 +10,7 @@ namespace Tree {
       * Create an Node.
       */
     Node::Node(unsigned int capacity)
-        : capacity_(capacity), key_({}), type_(TREE_ROOT_LEAF), child_(new Node* [capacity + 1]), degree_(0)
+        : capacity_(capacity), key_({}), type_(TREE_ROOT_LEAF), child_(new Node* [capacity + 1])
         {
         for (unsigned int i = 0; i < capacity + 1; i++) {this->child_[i] = NULL;}
         }
@@ -21,9 +21,6 @@ namespace Tree {
       * Invoked by the system.
       */
     Node::~Node() {
-        for (unsigned int i = 0; i < capacity_; i++) {
-            delete[] child_[i];
-        }
         delete[] child_;
     }
 
@@ -118,10 +115,17 @@ namespace Tree {
 
 
     void Node::del_child(int index) {
-        for (int i = index; i < key_.size(); i++) {
+        for (unsigned int i = index; i < key_.size(); i++) {
             this->child_[index] = this->child_[index + 1];
         }
         this->child_[key_.size()] = NULL;
+    }
+
+    void Node::copy_child(Node* node) {
+        this->capacity_ = node->get_capacity();
+        this->key_ = node->get_keylist();
+        this->type_ = node->get_type();
+        this->child_ = node->get_child();
     }
 
     /**
@@ -155,22 +159,6 @@ namespace Tree {
       */
     void Node::set_type(TreeNodeType type) {
         this->type_ = type;
-    }
-
-
-    /**
-      * Get the degree of current node
-      * @return degree of current node.
-      */
-    int Node::get_degree() {
-        return degree_;
-    }
-
-    /**
-      * Set type of current node as specific degree
-      */
-    void Node::set_degree(int degree) {
-        this->degree_ = degree;
     }
 
     /**

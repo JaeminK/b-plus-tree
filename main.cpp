@@ -32,7 +32,7 @@ start:
     Node* root = new Node(capacity);
 
     while (true) {
-        std::cout << "0:insert / 1:delete / 2:print / 3:refresh / 4:exit" << endl;
+        std::cout << "0:insert / 1:delete / 2:print / 3:refresh / 4:exit... / 5:insert in range" << endl;
         std::cout << "Enter an option: ";
 
         cin >> input;
@@ -50,7 +50,7 @@ start:
 
         switch (input) {
         case 0:
-            std::cout << "Enter a number to insert: ";
+            cout << "Enter a number to insert: ";
             cin.clear();
             cin >> input;
             if (cin.fail()) {
@@ -63,7 +63,32 @@ start:
             break;
 
         case 1:
-            std::cout << "Enter a number to delete: ";
+            int begin;
+            int end;
+            cout << "Enter range of numbers to insert... " << endl;
+            cout << "From.. :";
+            cin.clear();
+            cin >> begin;
+            if (cin.fail()) {
+                cout << "Not a valid number. try again!" << endl;
+                cin.clear();
+                continue;
+            }
+            cout << "To .. :";
+            cin.clear();
+            cin >> end;
+            if (cin.fail()) {
+                cout << "Not a valid number. try again!" << endl;
+                cin.clear();
+                continue;
+            }
+            for (int i = begin; i < end; i++) {
+                insert_node(root, i);
+            }
+            break;
+
+        case 2:
+            cout << "Enter a number to delete: ";
             cin.clear();
             cin >> input;
             if (cin.fail()) {
@@ -75,9 +100,9 @@ start:
             cin.clear();
             break;
 
-        case 2:
-            std::cout << "0:print leaf / 1:print tree" << endl;
-            std::cout << "Enter an option: ";
+        case 3:
+            cout << "0:print leaf / 1:print tree" << endl;
+            cout << "Enter an option: ";
             cin.clear();
 
             cin >> input;
@@ -90,7 +115,7 @@ start:
                 print_leaf(root);
             }
             else if (input == 1) {
-                print_tree(root, 0);
+                print_tree(root);
             }
             else {
                 cout << "Not a valid option. try again!" << endl;
@@ -100,11 +125,11 @@ start:
             cin.clear();
             break;
 
-        case 3:
+        case 4:
             delete(root);
             goto start;
 
-        case 4:
+        case 5:
             return 0;
 
         default:

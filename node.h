@@ -24,12 +24,11 @@ namespace Tree
         Node** get_child();
         void set_child(Node* child, int index);
         void del_child(int index);
+        void copy_child(Node* node);
         Node* get_next();
         void set_next(Node* node);
         TreeNodeType get_type();
         void set_type(TreeNodeType type);
-        int get_degree();
-        void set_degree(int degree);
         bool isFull();
         bool isEmpty();
 
@@ -38,6 +37,5 @@ namespace Tree
         vector<int> key_;
         TreeNodeType type_;
         Node** child_;
-        int degree_;
     };
 }
