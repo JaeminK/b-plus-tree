@@ -46,6 +46,7 @@ void insert_node(Node* node, int key) {
 			insert_arrange(node);	// my child is not full, but I'm full. arrange the tree..	// [[CASE 2]] ROOT - INTERNAL node is FULL
 		}
 	}
+	return;
 }												
 
 
@@ -102,60 +103,60 @@ void insert_arrange(Node* node) {
 
 	// CASE 1	..	ROOT-LEAF node is FULL
 	if (node->get_type() == TREE_ROOT_LEAF) {
-		/*	┌───-┐  ...  capacity = 3... divider = 1
+		/*	┌───────┐  ...  capacity = 3... divider = 1
 		*	│ 1 2 3 │ << ... # of keys = capacity ... FULL!
-		*	└───-┘
+		*	└───────┘
 		*/
 		Node* child1 = new Node(capacity);				// create left child node
 		child1->set_type(TREE_LEAF);
 		Node* child2 = new Node(capacity);				// create right child node
 		child2->set_type(TREE_LEAF);
 
-		/*		┌───-┐
+		/*		┌───────┐
 		*		│ 1 2 3 │ <<
-		*		└───-┘
-		*	┌──┐┌──┐
+		*		└───────┘
+		*	┌────┐┌────┐
 		*	│    ││    │
-		*	└──┘└──┘
+		*	└────┘└────┘
 		*/
 		for (int i = 0; i < divider; i++) {
-			/*		┌──-┐
+			/*		┌─────┐
 			*		│ 2 3 │ <<
-			*		└──-┘
-			*	┌─-┐┌──┐
+			*		└─────┘
+			*	┌───┐┌────┐
 			*	│ 1 ││    │
-			*	└─-┘└──┘
+			*	└───┘└────┘
 			*/
 			child1->add_key(node->get_key(0));
 			node->del_key(node->get_key(0));
 		}
-		for (unsigned int j = 0; j < node->get_keylist().size(); j++) {
-			/*		┌──-┐
+		for (unsigned int j = 0; j < node->get_keysize(); j++) {
+			/*		┌─────┐
 			*		│ 2 3 │ <<
-			*		└──-┘
-			*	┌─-┐┌──-┐
+			*		└─────┘
+			*	┌───┐┌─────┐
 			*	│ 1 ││ 2 3 │
-			*	└─-┘└──-┘
+			*	└───┘└─────┘
 			*/
 			child2->add_key(node->get_key(j));
 		}
-		for (unsigned int k = 1; k < node->get_keylist().size(); k++) {
-			/*		┌─-┐
+		for (int k = node->get_keysize(); k > 0; --k) {
+			/*		┌───┐
 			*		│ 2 │ <<
-			*		└─-┘
-			*	┌─-┐┌──-┐
+			*		└───┘
+			*	┌───┐┌─────┐
 			*	│ 1 ││ 2 3 │
-			*	└─-┘└──-┘
+			*	└───┘└─────┘
 			*/
-			node->del_key(node->get_key(1));
+			node->del_key(node->get_key(k));
 		}
 
-		/*		┌─-┐
+		/*		┌───┐
 		*		│ 2 │ <<
-		*		├─-┤
-		*	┌─-┐┌──-┐
-		*	│ 1 ││ 2 3 │
-		*	└─-┘└──-┘
+		*		├───┤
+		*	 ┌───┐┌─────┐
+		*	 │ 1 ││ 2 3 │
+		*	 └───┘└─────┘
 		*/
 		node->set_child(child1, 0);
 		node->set_child(child2, 1);
@@ -170,35 +171,35 @@ void insert_arrange(Node* node) {
 
 	// CASE 2	..	ROOT - INTERNAL node is FULL
 	else if (node->get_type() == TREE_ROOT_INTERNAL && node->isFull()) {
-		/*			┌──-─┐  ...  capacity = 3... divider = 1
+		/*			┌───────┐  ...  capacity = 3... divider = 1
 		*			│ 2 3 4 │ << ... # of keys = capacity ... FULL!
-		*		 ┌-┴─┬┬-┴─┐
-		*	┌─-┤┌─-┤├─-┐├─-┐
-		*	│ 1 ││ 2 ││ 3 ││ 4 │
-		*	└─-┘└─-┘└─-┘└─-┘
+		*		 ┌──┴─┬────┬┤
+		*	 ┌───┤┌───┤┌───┤├───┐
+		*	 │ 1 ││ 2 ││ 3 ││ 4 │
+		*	 └───┘└───┘└───┘└───┘
 		*/
 		Node* child3 = new Node(capacity);
 		child3->set_type(TREE_INTERNAL);
 		Node* child4 = new Node(capacity);
 		child4->set_type(TREE_INTERNAL);
 
-		/*  ┌─-┐					┌─-┐
-		*	│	 │	┌──-─┐		│	 │
-		*	└─-┘	│ 2 3 4 │ <<	└─-┘
-		*		 ┌-┴─┬┬-┴─┐
-		*	┌─-┤┌─-┤├─-┐├─-┐
-		*	│ 1 ││ 2 ││ 3 ││ 4 │
-		*	└─-┘└─-┘└─-┘└─-┘
+		/*  ┌───┐					┌───┐
+		*	│	│	┌───────┐		│	│
+		*	└───┘	│ 2 3 4 │ <<	└───┘
+		*		 ┌──┴─┬────┬┤
+		*	 ┌───┤┌───┤┌───┤├───┐
+		*	 │ 1 ││ 2 ││ 3 ││ 4 │
+		*	 └───┘└───┘└───┘└───┘
 		*/
 
 		for (int i = 0; i < divider; i++) {
-			/*  ┌─-┐					┌─-┐
-			*	│ 2 │	  ┌──-┐		│	 │
-			*	├─-┤	  │ 3 4 │ <<	└─-┘
-			*	 | 	 └┐-┴┬┬-┴─┐
-			*	┌─-┤┌─-┤├─-┐├─-┐
-			*	│ 1 ││ 2 ││ 3 ││ 4 │
-			*	└─-┘└─-┘└─-┘└─-┘
+			/*   ┌───┐				 ┌───┐
+			*	 │ 2 │	┌───────┐	 │	 │
+			*	 ├───┤  │  3 4  │ << └───┘
+			*	 | 	 └┐─┴─┬────┬┤
+			*	 ┌───┤┌───┤┌───┤├───┐
+			*	 │ 1 ││ 2 ││ 3 ││ 4 │
+			*	 └───┘└───┘└───┘└───┘
 			*/
 			child3->add_key(node->get_key(0));
 			node->del_key(node->get_key(0));
@@ -207,13 +208,13 @@ void insert_arrange(Node* node) {
 		child3->set_child(node->get_child()[divider], divider);
 
 		for (int j = divider+1; j < capacity; j++) {
-			/*  ┌─-┐					┌─-┐
-			*	│ 2 │	  ┌-─--┐		│ 4 │
-			*	├─-┤	  │  3  │ <<	├┬-┘
-			*	 | 	 └┐-┴┬┬-┴─┐-┘│
-			*	├─-┤├─-┤├─-┤├─-┤
-			*	│ 1 ││ 2 ││ 3 ││ 4 │
-			*	└─-┘└─-┘└─-┘└─-┘
+			/*   ┌───┐				 ┌───┐
+			*	 │ 2 │	┌───────┐	 │ 4 │
+			*	 ├───┤  │  3 4  │ << ├┬──┘
+			*	 | 	 └┐─┴─┬────┬┤────┘│
+			*	 ├───┤├───┤┌───┤├───┬─┘
+			*	 │ 1 ││ 2 ││ 3 ││ 4 │
+			*	 └───┘└───┘└───┘└───┘
 			*/
 			child4->add_key(node->get_key(1));
 			node->del_key(node->get_key(1));
@@ -222,26 +223,26 @@ void insert_arrange(Node* node) {
 		child4->set_child(node->get_child()[capacity], capacity - divider - 1);
 
 		for (int k = 0; k < capacity+1; k++) {
-			/*  ┌─-┐					 ┌─-┐
-			*	│ 2 │	   ┌─-┐		 │ 4 │
-			*	├─-┤	   │ 3 │ <<	 ├┬-┘
-			*	 |	 └┐  └─-┘ ┌──┘|
-			*	├─-┐├─-┐┌─-┤┌─-┤
-			*	│ 1 ││ 2 ││ 3 ││ 4 │
-			*	└─-┘└─-┘└─-┘└─-┘
+			/*   ┌───┐				 ┌───┐
+			*	 │ 2 │	┌───────┐	 │ 4 │
+			*	 ├───┤  │  3 4  │ << ├┬──┘
+			*	 | 	 └┐ └───────┘────┘│
+			*	 ├───┐├───┐┌───┤┌───┬─┘
+			*	 │ 1 ││ 2 ││ 3 ││ 4 │
+			*	 └───┘└───┘└───┘└───┘
 			*/
 			node->set_child(nullptr, k);
 		}
 
-		/*			   ┌─-┐
-		*			   │ 3 │	<<
-		*			 ┌┴─-┴┐
-		*		┌─-┐		 ┌─-┐
-		*		│ 2 │		 │ 4 │
-		*		├─-┤		 ├─-┤
-		*	┌─-┐┌─-┐┌─-┐┌─-┐
+		/*			┌───┐
+		*			│ 3 │  <<
+		*		   ┌┴───┴┐
+		*		┌───┐	┌───┐
+		*		│ 2 │	│ 4 │
+		*		├───┤	├───┤
+		*	┌───┐┌───┐┌───┐┌───┐
 		*	│ 1 ││ 2 ││ 3 ││ 4 │
-		*	└─-┘└─-┘└─-┘└─-┘
+		*	└───┘└───┘└───┘└───┘
 		*/
 		node->set_child(child3, 0);
 		node->set_child(child4, 1);
@@ -249,7 +250,7 @@ void insert_arrange(Node* node) {
 	}
 	// CASE 3	..	Child node is FULL..
 	else if (node->get_type() == TREE_INTERNAL || node->get_type() == TREE_ROOT_INTERNAL) {
-		int parent_size = node->get_keylist().size();
+		int parent_size = node->get_keysize();
 		int divider = capacity / 2;
 		int overflow;
 		Node** child = node->get_child();
@@ -262,44 +263,44 @@ void insert_arrange(Node* node) {
 
 		// CASE 3-1	..	child node is LEAF node..
 		if (child[overflow]->get_type() == TREE_LEAF) {
-			/*		┌─-┐  ...  capacity = 3... divider = 1
+			/*		┌───┐  ...  capacity = 3... divider = 1
 			*		│ 2 │ << ... child node type... LEAF!
-			*		├─-┤  ... child # of keys = capacity ... child is FULL!
-			*	┌─-┐┌───-┐
-			*	│ 1 ││ 2 3 4 │
-			*	└─-┘└───-┘
+			*		├───┤  ... child # of keys = capacity ... child is FULL!
+			*	 ┌───┐┌───────┐
+			*	 │ 1 ││ 2 3 4 │
+			*	 └───┘└───────┘
 			*/
 			Node* child5 = new Node(capacity);
 			child5->set_type(TREE_LEAF);
 			int index = node->add_key(split_key);
 
-			/*		┌──-┐ 
+			/*		┌─────┐ 
 			*		│ 2 3 │ <<	... split_key = 3, index = 1
-			*		├──-┤
-			*	┌─-┐┌───-┐┌─-┐
+			*		├─────┤
+			*	┌───┐┌───────┐┌───┐
 			*	│ 1 ││ 2 3 4 ││   │
-			*	└─-┘└───-┘└─-┘
+			*	└───┘└───────┘└───┘
 			*/
 
 			for (int i = capacity; i > index + 1; i--) {
 				node->set_child(node->get_child()[i - 1], i);	// make space for new node
 			}
-			/*		┌──-┐
+			/*		┌─────┐
 			*		│ 2 3 │ <<
-			*		├──-┼───┐
-			*	┌─-┐┌───-┐┌─-┐
+			*		├─────┼───┐
+			*	┌───┐┌───────┐┌───┐
 			*	│ 1 ││ 2 3 4 ││   │
-			*	└─-┘└───-┘└─-┘
+			*	└───┘└───────┘└───┘
 			*/
 			node->set_child(child5, index + 1);
 
 			for (int j = divider; j < capacity; j++) {
-				/*		┌──-┐
+				/*		┌─────┐
 				*		│ 2 3 │ <<
-				*		├──-┼─┐
-				*	┌─-┐┌─-┐┌──-┐
+				*		├─────┼─┐
+				*	┌───┐┌───┐┌─────┐
 				*	│ 1 ││ 2 ││ 3 4 │
-				*	└─-┘└─-┘└─-─┘
+				*	└───┘└───┘└─────┘
 				*/
 				child5->add_key(child[overflow]->get_key(divider));
 				child[overflow]->del_key(child[overflow]->get_key(divider));
@@ -311,57 +312,57 @@ void insert_arrange(Node* node) {
 
 		// CASE 3-2	..	child node is INTERNAL node..
 		else if (child[overflow]->get_type() == TREE_INTERNAL) {
-			/*		┌─-┐  ...  capacity = 3... divider = 1
+			/*		┌───┐  ...  capacity = 3... divider = 1
 			*		│ 2 │ << ... child node type... TREE_INTERNAL!
-			*		├─-┤  ... child # of keys = capacity ... child is FULL!
-			*	┌─-┐┌───-┐
+			*		├───┤  ... child # of keys = capacity ... child is FULL!
+			*	┌───┐┌───────┐
 			*	│ 1 ││ 3 4 5 │
-			*	├─-┤├┬─-┬┤
+			*	├───┤├──┬─┬──┤
 			*/
 			Node* child6 = new Node(capacity);
 			child6->set_type(TREE_INTERNAL);
 			int index = node->add_key(split_key);
 			child[overflow]->del_key(split_key);
 
-			/*		┌─-─┐
+			/*		┌─────┐
 			*		│ 2 4 │ << ... split_key = 4, index = 1
-			*		├─-─┤ 
-			*	┌─-┐┌──-┐┌─-┐
+			*		├─────┤ 
+			*	┌───┐┌─────┐┌───┐
 			*	│ 1 ││ 3 5 ││   │
-			*	├─-┤├┬-┬┤└─-┘
+			*	├───┤├─┬─┬─┤└───┘
 			*/
 
 			for (int i = capacity; i > index + 1; i--) {
 				node->set_child(node->get_child()[i - 1], i);	// make space for new node
 			}
-			/*		┌─-─┐
+			/*		┌─────┐
 			*		│ 2 4 │ <<
-			*		├─-─┼──┐
-			*	┌─-┐┌──-┐┌─-┐
+			*		├─────┼──┐
+			*	┌───┐┌─────┐┌───┐
 			*	│ 1 ││ 3 5 ││   │
-			*	├─-┤├┬-┬┤└─-┘
+			*	├───┤├─┬─┬─┤└───┘
 			*/
 			node->set_child(child6, index + 1);
 
 			for (int j = divider; j < capacity-1; j++) {
-				/*		┌─-─┐
+				/*		┌─────┐
 				*		│ 2 4 │ << 
-				*		├─-─┼──┐
-				*	┌─-┐┌─--┐┌─-┐
-				*	│ 1 ││ 3  ││ 5 │
-				*	├─-┤├┬┬┤└─-┘
+				*		├─────┼──┐
+				*	┌───┐┌─────┐┌───┐
+				*	│ 1 ││ 3   ││ 5 │
+				*	├───┤├─┬─┬─┤└───┘
 				*/
 				child6->add_key(child[overflow]->get_key(divider));
 				child[overflow]->del_key(child[overflow]->get_key(divider));
 			}
 
 			for (int k = divider; k < capacity; k++) {
-				/*		┌─-─┐
+				/*		┌─────┐
 				*		│ 2 4 │ <<
-				*		├─-─┼──┐
-				*	┌─-┐┌─-┐┌─-┐
-				*	│ 1 ││ 3 ││ 5 │
-				*	├─-┤├─-┤├─-┤
+				*		├─────┼──┐
+				*	 ┌───┐┌───┐┌───┐
+				*	 │ 1 ││ 3 ││ 5 │
+				*	 ├───┤├───┤├───┤
 				*/
 				child6->set_child(child[overflow]->get_child()[k + 1], k - divider);
 				child[overflow]->set_child(nullptr, k + 1);
@@ -384,7 +385,7 @@ void delete_arrange(Node* node) {
 	// this may cause root node to be empty...
 	// require additional check whether root is empty...
 	if (node->get_type() == TREE_ROOT_INTERNAL || node->get_type() == TREE_INTERNAL) {
-		int parent_size = node->get_keylist().size();
+		int parent_size = node->get_keysize();
 		if (parent_size == 0) {
 			return;
 		}
@@ -400,22 +401,22 @@ void delete_arrange(Node* node) {
 		// CASE 1	..	Child node is LEAF node..
 		if (child[underflow]->get_type() == TREE_LEAF) {
 			if (tmp == 1) {			// when left adjacent child has more than one key
-				/*	    ┌───-┐
-				*	    │ 3  4  │ <<  ... child node type... LEAF!
-				*	    ├─┬─-┤	... child # of keys = 0 ... child is Empty!
-				* ┌──-┐┌-┐┌─-┐
+				/*	  ┌───────┐
+				*	  │ 3  4  │ <<  ... child node type... LEAF!
+				*	  ├───┬───┤	... child # of keys = 0 ... child is Empty!
+				* ┌─────┐┌─┐┌───┐
 				* │ 1 2 ││ ││ 4 │
-				* └──-┘└-┘└─-┘
+				* └─────┘└─┘└───┘
 				*/
 				Node* leftchild = child[underflow - 1];
 				int shift_key = leftchild->get_keylist().back();
 
-				/*	   ┌───-┐
-				*	   │ 2  4  │ <<
-				*	   ├─┬─-┤
-				* ┌─-┐┌─-┐┌──-┐
+				/*	 ┌───────┐
+				*	 │ 2  4  │ <<
+				*	 ├───┬───┤	
+				* ┌───┐┌───┐┌─────┐
 				* │ 1 ││ 2 ││ 4 5 │
-				* └─-┘└─-┘└──-┘
+				* └───┘└───┘└─────┘
 				*/
 				node->del_key(node->get_key(underflow - 1));
 				child[underflow]->add_key(shift_key);
@@ -423,12 +424,12 @@ void delete_arrange(Node* node) {
 				leftchild->del_key(shift_key);
 			}
 			else if (tmp == 2) {			// when right adjacent child has more than one key
-				/*	   ┌───-┐
-				*	   │ 3  4  │ << 
-				*	   ├─┬─-┤
-				* ┌─-┐┌─-┐┌──-┐
+				/*	 ┌───────┐
+				*	 │ 3  4  │ << 
+				*	 ├───┬───┤
+				* ┌───┐┌───┐┌─────┐
 				* │ 1 ││   ││ 4 5 │
-				* └─-┘└─-┘└──-┘
+				* └───┘└───┘└─────┘
 				*/
 				if (underflow == 0) {		// when left-most child is empty
 					Node* rightchild = child[underflow + 1];
@@ -440,12 +441,12 @@ void delete_arrange(Node* node) {
 					node->add_key(rightchild->get_keylist().front());
 				}
 				else {
-					/*	   ┌───-┐
-					*	   │ 3  5  │ <<
-					*	   ├─┬─-┤
-					* ┌─-┐┌─-┐┌─-┐
+					/*	 ┌───────┐
+					*	 │ 3  5  │ <<
+					*	 ├───┬───┤
+					* ┌───┐┌───┐┌───┐
 					* │ 1 ││ 4 ││ 5 │
-					* └─-┘└─-┘└─-┘
+					* └───┘└───┘└───┘
 					*/
 					Node* rightchild = child[underflow + 1];
 					int shift_key = rightchild->get_keylist().front();
@@ -459,12 +460,12 @@ void delete_arrange(Node* node) {
 			}
 			else {							// when both left and right adjacent child has less than one key
 				if (underflow == 0) {		// when leftmost child is not empty
-					/*	   ┌───-┐
-					*	   │ 2  3  │ <<
-					*	   ├─┬─-┤
-					* ┌─-┐┌─-┐┌─-┐
+					/*	 ┌───────┐
+					*	 │ 2  3  │ <<
+					*	 ├───┬───┤
+					* ┌───┐┌───┐┌───┐
 					* │   ││ 2 ││ 3 │
-					* └─-┘└─-┘└─-┘
+					* └───┘└───┘└───┘
 					*/
 					for (int i = underflow; i < parent_size; i++) {
 						node->get_child()[i]->copy_child(node->get_child()[i + 1]);
@@ -473,12 +474,12 @@ void delete_arrange(Node* node) {
 					node->del_key(node->get_key(0));
 				}
 				else {
-					/*	   ┌───-┐
-					*	   │ 2  3  │ <<
-					*	   ├─┬─-┤
-					* ┌─-┐┌─-┐┌─-┐
+					/*	 ┌───────┐
+					*	 │ 2  3  │ <<
+					*	 ├───┬───┤
+					* ┌───┐┌───┐┌───┐
 					* │ 1 ││   ││ 3 │
-					* └─-┘└─-┘└─-┘
+					* └───┘└───┘└───┘
 					*/
 					child[underflow - 1]->set_next(child[underflow]->get_next());
 					node->del_child(underflow);
@@ -490,114 +491,114 @@ void delete_arrange(Node* node) {
 		// CASE 2	..	Child node is INTERNAL node..
 		else if (child[underflow]->get_type() == TREE_INTERNAL) {
 			if (tmp == 1) {					// when left adjacent child has more than one key
-				/*	     ┌───-┐
-				*	     │ 5  7  │ <<  ... child node type... INTERNAL!
-				*	     ├─┬─-┤	... child # of keys = 0 ... child is Empty!
-				* ┌──-┐┌-─┐┌─-┐
+				/*	   ┌───────┐
+				*	   │ 5  7  │ <<  ... child node type... INTERNAL!
+				*	   ├───┬───┤	... child # of keys = 0 ... child is Empty!
+				* ┌─────┐┌───┐┌───┐
 				* │ 2 3 ││   ││ 8 │
-				* ├┬─-┤├-─┘├─-┤
+				* ├─┬───┤├───┘├───┤
 				*/
 				Node* leftchild = child[underflow - 1];
 				child[underflow]->add_key(node->get_key(underflow - 1));
 				node->del_key(node->get_key(underflow - 1));
 				node->add_key(leftchild->get_keylist().back());
 				leftchild->del_key(leftchild->get_keylist().back());
-				/*	     ┌───-┐
-				*	     │ 3  7  │ << 
-				*	     ├─┬─-┤	
-				* ┌──-┐┌-─┐┌─-┐
+				/*	   ┌───────┐
+				*	   │ 3  7  │ << 
+				*	   ├───┬───┤
+				* ┌─────┐┌───┐┌───┐
 				* │ 2   ││ 5 ││ 8 │
-				* ├┬─-┤├-─┘├─-┤
+				* ├─┬───┤├───┘├───┤
 				*/
 				child[underflow]->set_child(child[underflow]->get_child()[0], 1);
-				child[underflow]->set_child(leftchild->get_child()[leftchild->get_keylist().size() + 1], 0);
-				leftchild->set_child(nullptr, leftchild->get_keylist().size() + 1);
-				/*	   ┌───-┐
-				*	   │ 3  7  │ <<
-				*	   ├─┬─-┤
-				* ┌─-┐┌-─┐┌─-┐
+				child[underflow]->set_child(leftchild->get_child()[leftchild->get_keysize() + 1], 0);
+				leftchild->set_child(nullptr, leftchild->get_keysize() + 1);
+				/*	 ┌───────┐
+				*	 │ 3  7  │ << 
+				*	 ├───┬───┤
+				* ┌───┐┌───┐┌───┐
 				* │ 2 ││ 5 ││ 8 │
-				* ├─-┤├-─┤├─-┤
+				* ├───┤├───┤├───┤
 				*/
 			}
 			else if (tmp == 2) {			// when right adjacent child has more than one key
-				/*	   ┌───-┐
-				*	   │ 3  5  │ <<  ... child node type... INTERNAL!
-				*	   ├─┬─-┤	... child # of keys = 0 ... child is Empty!
-				* ┌─-┐┌-─┐┌──-┐
+				/*	 ┌───────┐
+				*	 │ 3  5  │ <<  ... child node type... INTERNAL!
+				*	 ├───┬───┤	... child # of keys = 0 ... child is Empty!
+				* ┌───┐┌───┐┌─────┐
 				* │ 2 ││   ││ 6 7 │
-				* ├─-┤├-─┘├─┬-┤
+				* ├───┤├───┘├─┬───┤
 				*/
 				Node* rightchild = child[underflow + 1];
 				child[underflow]->add_key(node->get_key(underflow));
 				node->del_key(node->get_key(underflow));
 				node->add_key(rightchild->get_keylist().front());
 				rightchild->del_key(rightchild->get_keylist().front());
-				/*	   ┌───-┐
-				*	   │ 3  6  │ <<
-				*	   ├─┬─-┤
-				* ┌─-┐┌-─┐┌──-┐
+				/*	 ┌───────┐
+				* 	 │ 3  6  │ <<
+				*	 ├───┬───┤
+				* ┌───┐┌───┐┌─────┐
 				* │ 2 ││ 5 ││ 7   │
-				* ├─-┤├-─┘├─┬-┤
+				* ├───┤├───┘├─┬───┤
 				*/
 				child[underflow]->set_child(rightchild->get_child()[0], 1);
-				for (unsigned int i = 0; i < rightchild->get_keylist().size() + 1; i++) {
+				for (unsigned int i = 0; i < rightchild->get_keysize() + 1; i++) {
 					rightchild->set_child(rightchild->get_child()[i + 1], i);
 				}
-				rightchild->set_child(nullptr, rightchild->get_keylist().size() + 1);
-				/*	   ┌───-┐
-				*	   │ 3  6  │ <<
-				*	   ├─┬─-┤
-				* ┌─-┐┌-─┐┌─-┐
+				rightchild->set_child(nullptr, rightchild->get_keysize() + 1);
+				/*	 ┌───────┐
+				*	 │ 3  6  │ <<
+				*	 ├───┬───┤
+				* ┌───┐┌───┐┌───┐
 				* │ 2 ││ 5 ││ 7 │
-				* ├─-┤├-─┤├─-┤
+				* ├───┤├───┤├───┤
 				*/
 			}
 			else {							// when both left and right adjacent child has less than one key
 				if (underflow == 0) {		// when left-most child is empty
-					/*	   ┌───-┐
-					*	   │ 3  6  │ <<
-					*	   ├─┬─-┤
-					* ┌─-┐┌─-┐┌─-┐
+					/*	 ┌───────┐
+					*	 │ 3  6  │ <<
+					*	 ├───┬───┤
+					* ┌───┐┌───┐┌───┐
 					* │   ││ 5 ││ 7 │
-					* ├─-┘├-─┤├─-┤
+					* ├───┘├───┤├───┤
 					*/
 					Node* nextchild = child[underflow + 1];
 					int number = node->get_key(underflow);
 					nextchild->add_key(number);
-					for (int i = nextchild->get_keylist().size(); i > 0; i--) {
+					for (int i = nextchild->get_keysize(); i > 0; i--) {
 						nextchild->set_child(nextchild->get_child()[i - 1], i);
 					}
 					nextchild->set_child(child[underflow]->get_child()[0], 0);
 					node->del_child(0);
 					node->del_key(number);
-					/*		┌─-┐
+					/*		┌───┐
 					*		│ 6 │ <<
-					*		├─-┤
-					* ┌───┐┌─-┐
+					*		├───┤
+					* ┌──────┐┌───┐
 					* │ 3  5 ││ 7 │
-					* ├─┬─┤├─-┤
+					* ├──┬───┤├───┤
 					*/
 				}
 				else {
-					/*	   ┌───-┐
-					*	   │ 3  6  │ <<
-					*	   ├─┬─-┤
-					* ┌─-┐┌─-┐┌─-┐
+					/*	 ┌───────┐
+					*	 │ 3  6  │ <<
+					*  	 ├──┬────┤
+					* ┌───┐┌───┐┌───┐
 					* │ 2 ││   ││ 7 │
-					* ├─-┤├-─┘├─-┘
+					* ├───┤├───┘├───┘
 					*/
 					Node* prevchild = child[underflow - 1];
 					prevchild->add_key(node->get_key(underflow - 1));
-					prevchild->set_child(child[underflow]->get_child()[0], prevchild->get_keylist().size());
+					prevchild->set_child(child[underflow]->get_child()[0], prevchild->get_keysize());
 					node->del_child(underflow);
 					node->del_key(node->get_key(underflow - 1));
-					/*		┌─-┐
+					/*		┌───┐
 					*		│ 6 │ <<
-					*		├─-┤
-					* ┌───┐┌─-┐
+					*		├───┤
+					* ┌──────┐┌───┐
 					* │ 2  3 ││ 7 │
-					* ├─┬─┤├─-┤
+					* ├─┬────┤├───┤
 					*/
 				}
 			}
@@ -608,10 +609,10 @@ void delete_arrange(Node* node) {
 }
 
 int check_side(Node* node, int index) {
-	if (index > 0 && node->get_child()[index - 1]->get_keylist().size() > 1) {
+	if (index > 0 && node->get_child()[index - 1]->get_keysize() > 1) {
 		return 1;
 	}
-	else if (node->get_child()[index + 1] != nullptr && node->get_child()[index + 1]->get_keylist().size() > 1) {
+	else if (node->get_child()[index + 1] != nullptr && node->get_child()[index + 1]->get_keysize() > 1) {
 		return 2;
 	}
 	else {
@@ -681,11 +682,11 @@ void print_leaf(Node* node) {
 
 int count_leaf_keys(Node* node) {
 	if (node->get_type() == TREE_LEAF || node->get_type() == TREE_ROOT_LEAF) {
-		return node->get_keylist().size();
+		return node->get_keysize();
 	}
 	else {
 		int sum = 0;
-		for (unsigned int i = 0; i <= node->get_keylist().size(); i++) {
+		for (unsigned int i = 0; i <= node->get_keysize(); i++) {
 			sum += count_leaf_keys(node->get_child()[i]);
 		}
 		return sum;
@@ -699,10 +700,10 @@ int count_leaf_nodes(Node* node) {
 	else {
 		int sum = 0;
 		if (node->get_child()[0]->get_type() == TREE_LEAF || node->get_child()[0]->get_type() == TREE_ROOT_LEAF) {
-			sum = node->get_keylist().size() + 1;
+			sum = node->get_keysize() + 1;
 		}
 		else {
-			for (unsigned int i = 0; i <= node->get_keylist().size(); i++) {
+			for (unsigned int i = 0; i <= node->get_keysize(); i++) {
 				sum += count_leaf_keys(node->get_child()[i]);
 			}
 		}
@@ -720,14 +721,14 @@ void print_tree(Node* node) {
 			q.pop();
 			if (curr->get_type() == TREE_LEAF || curr->get_type() == TREE_ROOT_LEAF) {
 				cout << setw(1) << "[";
-				for (unsigned int j = 0; j < curr->get_keylist().size(); j++) {
+				for (unsigned int j = 0; j < curr->get_keysize(); j++) {
 					cout.setf(ios::right);
 					cout << setw(3) << curr->get_key(j);
 				}
 				cout << setw(1) << "]";
 			}
 			else {
-				int key_size = curr->get_keylist().size();
+				int key_size = curr->get_keysize();
 				for (int k = 0; k < key_size; k++) {
 					int child_leaf_size = count_leaf_keys(curr->get_child()[k]) * 3 + count_leaf_nodes(curr->get_child()[k]) * 2;
 					cout.setf(ios::right);

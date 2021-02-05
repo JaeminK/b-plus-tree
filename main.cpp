@@ -32,7 +32,7 @@ start:
     Node* root = new Node(capacity);
 
     while (true) {
-        std::cout << "0:insert / 1:delete / 2:print / 3:refresh / 4:exit... / 5:insert in range" << endl;
+        std::cout << "0:insert / 1:insert in range / 2:delete / 3:print / 4:refresh / 5:exit..." << endl;
         std::cout << "Enter an option: ";
 
         cin >> input;

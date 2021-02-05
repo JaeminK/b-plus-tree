@@ -43,7 +43,7 @@ namespace Tree {
       * @return key of a specific index from the key list.
       */
     int Node::get_key(int index) {
-        if (!key_.empty()) {
+        if (index < key_.size()) {
             return key_[index];
         }
         else {
@@ -52,18 +52,22 @@ namespace Tree {
     }
 
 
+    int Node::get_keysize(){
+      return this->key_.size();
+    }
+
     /** Add a key to the list with ascending order
       * @return index of where the inserted key have been placed.
       */
     int Node::add_key(int key) {
-        int size = get_keylist().size();
+        int size = key_.size();
         if (size == 0) {
             this->key_.insert(this->key_.begin(), key);
             return 0;
         }
         else {
             unsigned int i;
-            for (i = 0; i < get_keylist().size(); i++) {
+            for (i = 0; i < key_.size(); i++) {
                 if (key < get_keylist()[i]) {
                     this->key_.insert(this->key_.begin() + i, key);
                     return i;
