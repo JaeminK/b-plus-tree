@@ -18,42 +18,49 @@ start:
 
     cin >> capacity;
 
-    if (cin.fail()) {
+    if (cin.fail())
+    {
         cout << "Not a valid number. try again!" << endl;
         cin.clear();
         goto start;
     }
-    if (capacity < 3) {
+    if (capacity < 3)
+    {
         cout << "capacity should be greater than 2" << endl;
         cin.clear();
         goto start;
     }
 
-    Node* root = new Node(capacity);
+    Node *root = new Node(capacity);
 
-    while (true) {
+    while (true)
+    {
         std::cout << "0:insert / 1:insert in range / 2:delete / 3:print / 4:refresh / 5:exit..." << endl;
         std::cout << "Enter an option: ";
 
         cin >> input;
 
-        if (cin.fail()) {
+        if (cin.fail())
+        {
             cout << "Not a valid number. try again!" << endl;
             cin.clear();
             continue;
         }
-        if (input < 0 || input > 5) {
+        if (input < 0 || input > 5)
+        {
             cout << "Not a valid option. try again!" << endl;
             cin.clear();
             continue;
         }
 
-        switch (input) {
+        switch (input)
+        {
         case 0:
             cout << "Enter a number to insert: ";
             cin.clear();
             cin >> input;
-            if (cin.fail()) {
+            if (cin.fail())
+            {
                 cout << "Not a valid number. try again!" << endl;
                 cin.clear();
                 continue;
@@ -69,7 +76,8 @@ start:
             cout << "From.. :";
             cin.clear();
             cin >> begin;
-            if (cin.fail()) {
+            if (cin.fail())
+            {
                 cout << "Not a valid number. try again!" << endl;
                 cin.clear();
                 continue;
@@ -77,12 +85,14 @@ start:
             cout << "To .. :";
             cin.clear();
             cin >> end;
-            if (cin.fail()) {
+            if (cin.fail())
+            {
                 cout << "Not a valid number. try again!" << endl;
                 cin.clear();
                 continue;
             }
-            for (int i = begin; i < end; i++) {
+            for (int i = begin; i < end; i++)
+            {
                 insert_node(root, i);
             }
             break;
@@ -91,7 +101,8 @@ start:
             cout << "Enter a number to delete: ";
             cin.clear();
             cin >> input;
-            if (cin.fail()) {
+            if (cin.fail())
+            {
                 cout << "Not a valid number. try again!" << endl;
                 cin.clear();
                 continue;
@@ -106,18 +117,22 @@ start:
             cin.clear();
 
             cin >> input;
-            if (cin.fail()) {
+            if (cin.fail())
+            {
                 cout << "Not a valid number. try again!" << endl;
                 cin.clear();
                 continue;
             }
-            if (input == 0) {
+            if (input == 0)
+            {
                 print_leaf(root);
             }
-            else if (input == 1) {
+            else if (input == 1)
+            {
                 print_tree(root);
             }
-            else {
+            else
+            {
                 cout << "Not a valid option. try again!" << endl;
                 cin.clear();
                 continue;
@@ -126,7 +141,7 @@ start:
             break;
 
         case 4:
-            delete(root);
+            delete (root);
             goto start;
 
         case 5:
